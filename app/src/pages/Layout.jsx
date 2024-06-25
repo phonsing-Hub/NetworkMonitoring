@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import axios from "axios";
 import { Outlet, Link, useLocation } from "react-router-dom";
 import { useTheme } from "../components/theme/ThemeProvider";
 import {
@@ -10,126 +11,185 @@ import {
   theme,
   Image,
   Popover,
+  Switch,
 } from "antd";
+import { Button as Btn } from "@nextui-org/react";
 import { MenuFoldOutlined, MenuUnfoldOutlined } from "@ant-design/icons";
 import { IoSettingsOutline } from "react-icons/io5";
-import { MdOutlineAddHomeWork, MdOutlineBubbleChart } from "react-icons/md";
+import {
+  MdOutlineAddHomeWork,
+  MdOutlineBubbleChart,
+  MdOutlineDarkMode,
+  MdOutlineLightMode,
+  MdOutlineLockReset,
+  MdLogout
+} from "react-icons/md";
 import { PiFolderUserBold } from "react-icons/pi";
 
-const { Header, Sider } = Layout;
+//components
+import ChangePassword from "../auth/ChangePassword";
 
+const { Header, Sider } = Layout;
+const IP = import.meta.env.VITE_DEFAULT_IP;
+const axiosInstance = axios.create({
+  baseURL: IP , 
+  withCredentials: true 
+});
 
 export default function LayoutRoot() {
-  const { isDarkMode, setIsDarkMode } = useTheme();
   const location = useLocation();
+  const { isDarkMode, setIsDarkMode } = useTheme();
   const [collapsed, setCollapsed] = useState(false);
   const [path, setPath] = useState("");
-  const handleClick = () => {
-    setIsDarkMode(!isDarkMode);
-  };
-
+  const [logoutloading, setLogoutloading] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const {
     token: { colorBgContainer },
   } = theme.useToken();
 
+  const handleClick = () => {
+    setIsDarkMode(!isDarkMode);
+  };
+
+  const handleLogout = () => {
+    setLogoutloading(true);
+    axiosInstance.get('/api/auth/logout')
+    .then(response => {
+      console.log(response.data); 
+      window.location.reload();
+    })
+    .catch(error => {
+      setLogoutloading(false);
+      console.error('Error clearing cookie:', error);
+    });
+  };
+
   useEffect(() => {
-    if (location.pathname === "/") 
-        return setPath("/Home");
+    if (location.pathname === "/") return setPath("/Home");
     setPath(location.pathname);
   }, [location.pathname]);
 
   const content = (
-    <div>
-      <Button onClick={handleClick}>
-        Change Theme to {isDarkMode ? "Light" : "Dark"}
-      </Button>
+    <div className="flex flex-col gap-2"> 
+      <Btn
+        color="warning"
+        size="sm"
+        radius="sm"
+        variant="light"
+        endContent={<MdOutlineLockReset size={22}/>}
+        className="w-full"
+        onPress={()=>setIsModalOpen(true)}
+      >
+      Change Password
+      </Btn>
+      <Btn
+        color="danger"
+        size="sm"
+        radius="sm"
+        variant="ghost"
+        endContent={<MdLogout size={22}/>}
+        className="w-full"
+        isLoading={logoutloading}
+        onPress={handleLogout}
+      >
+        Logout
+      </Btn>
     </div>
   );
 
-  return ( 
-      <Layout className="h-screen">
-        <Sider
-          width={250}
-          trigger={null}
-          collapsible
-          collapsed={collapsed}
+  return (
+    <Layout className="h-screen">
+      <Sider
+        width={250}
+        trigger={null}
+        collapsible
+        collapsed={collapsed}
+        style={{
+          background: !isDarkMode ? colorBgContainer : "rgb(20, 20, 20)",
+        }}
+      >
+        <div className="flex w-full h-[80px] justify-between items-center px-5">
+          {isDarkMode ? (
+            <Image width={80} src="LogoD.png" />
+          ) : (
+            <Image width={80} src="LogoL.png" />
+          )}
+
+          {!collapsed && (
+            <div className="flex gap-3 items-center">
+              <div className="Img">
+                <Avatar src="phonsing.jpg" className="m-[1px]" />
+              </div>
+              <Popover
+                placement="bottomLeft"
+                title={"Setting"}
+                content={content}
+                //overlayStyle={{ width: '120px' }}
+              >
+                <Button
+                  icon={<IoSettingsOutline size={28} />}
+                  shape="circle"
+                  type="dashed"
+                />
+              </Popover>
+            </div>
+          )}
+        </div>
+        <Menu
+          className="px-2"
+          mode="inline"
+          defaultSelectedKeys={["/"]}
+          selectedKeys={location.pathname}
+          items={[
+            {
+              key: "/",
+              icon: <MdOutlineAddHomeWork size={24} />,
+              label: <Link to="/">Home</Link>,
+            },
+            {
+              key: "/employee",
+              icon: <PiFolderUserBold size={24} />,
+              label: <Link to="/employee">Employee</Link>,
+            },
+            {
+              key: "/service",
+              icon: <MdOutlineBubbleChart size={24} />,
+              label: <Link to="/service">Service</Link>,
+            },
+          ]}
+        />
+      </Sider>
+      <Layout>
+        <Header
           style={{
+            padding: 0,
             background: !isDarkMode ? colorBgContainer : "rgb(20, 20, 20)",
           }}
+          className="flex justify-between items-center"
         >
-          <div className="flex w-full h-[80px] justify-between items-center px-5">
-            {isDarkMode ? (
-              <Image width={80} src="LogoD.png" />
-            ) : (
-              <Image width={80} src="LogoL.png" />
-            )}
-
-            {!collapsed && (
-              <div className="flex gap-3 items-center">
-                <div className="Img">
-                  <Avatar src="phonsing.jpg" className="m-[1px]" />
-                </div>
-                <Popover
-                  placement="bottomLeft"
-                  title={"Setting"}
-                  content={content}
-                >
-                  <Button
-                    icon={<IoSettingsOutline size={28} />}
-                    shape="circle"
-                    type="dashed"
-                  />
-                </Popover>
-              </div>
-            )}
-          </div>
-          <Menu
-            className="px-2"
-            mode="inline"
-            defaultSelectedKeys={["/"]}
-            selectedKeys={location.pathname}
-            items={[
-              {
-                key: "/",
-                icon: <MdOutlineAddHomeWork size={24} />,
-                label: <Link to="/">Home</Link>,
-              },
-              {
-                key: "/employee",
-                icon: <PiFolderUserBold size={24} />,
-                label: <Link to="/employee">Employee</Link>,
-              },
-              {
-                key: "/service",
-                icon: <MdOutlineBubbleChart size={24} />,
-                label: <Link to="/service">Service</Link>,
-              },
-            ]}
-          />
-        </Sider>
-        <Layout>
-          <Header
+          <Button
+            type="text"
+            icon={collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
+            onClick={() => setCollapsed(!collapsed)}
             style={{
-              padding: 0,
-              background: !isDarkMode ? colorBgContainer : "rgb(20, 20, 20)",
+              fontSize: "16px",
+              width: 64,
+              height: 64,
             }}
-          >
-            <Button
-              type="text"
-              icon={collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
-              onClick={() => setCollapsed(!collapsed)}
-              style={{
-                fontSize: "16px",
-                width: 64,
-                height: 64,
-              }}
-            />
-          </Header>
-          <Tag bordered={false} color="blue" className="mt-2 ml-4 w-min">
-            {path}
-          </Tag>
-          <Outlet />
-        </Layout>
+          />
+          <Switch
+            checkedChildren={<MdOutlineDarkMode size={22} />}
+            unCheckedChildren={<MdOutlineLightMode size={22} />}
+            onChange={handleClick}
+            className="mr-4"
+          />
+        </Header>
+        <Tag bordered={false} color="blue" className="mt-2 ml-4 w-min">
+          {path}
+        </Tag>
+        <ChangePassword isModalOpen={isModalOpen} setIsModalOpen={setIsModalOpen}/>
+        <Outlet />
       </Layout>
+    </Layout>
   );
 }
