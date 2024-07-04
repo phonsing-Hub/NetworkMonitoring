@@ -80,7 +80,7 @@ function ChangePassword({ isModalOpen, setIsModalOpen }) {
     } 
 
     try {
-      const res = await axios.put(`${IP}/api/auth/changepassword`,{
+      const res = await axios.put(`${IP}/api/changepassword`,{
         OldPassword: isp1.value,
         NewPassword: isp3.value
       },{ withCredentials: true });

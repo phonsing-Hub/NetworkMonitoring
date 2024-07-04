@@ -35,11 +35,19 @@ function Login({ setAuth }) {
 
   const handleLogin = async () => {
     try {
+      setError1({
+        error: false,
+        mess: "",
+      });
+      setError2({
+        error: false,
+        mess: "",
+      });
       setIsLoading(true);
       const res = await axios.post(
         `${IP}/api/auth`,
         {
-          auth: authid,
+          name_id: authid,
           password,
         },
         {

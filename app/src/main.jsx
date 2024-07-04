@@ -7,17 +7,20 @@ import ThemeProvider from "./components/theme/ThemeProvider";
 import LayoutRoot from "./pages/Layout";
 import Home from "./pages/Home";
 import Employee from "./pages/Employee";
+import Create from "./pages/Create";
 import Service from "./pages/Service";
 import NoPage from "./pages/NoPage";
 import Login from "./auth/Login";
 import Loading from "./auth/Loading";
+
+const IP = import.meta.env.VITE_DEFAULT_IP;
 
 export default function App() {
   const [auth, setAuth] = useState("Loading");
 
   useEffect(() => {
     axios
-      .post("http://localhost:3000/api/auth/token", null, {
+      .post(`${IP}/api/token`, null, {
         withCredentials: true,
       })
       .then((res) => {
@@ -39,6 +42,7 @@ export default function App() {
           <Route path="/" element={<LayoutRoot />}>
             <Route index element={<Home />} />
             <Route path="employee" element={<Employee />} />
+            <Route path="employee/create" element={<Create />} />
             <Route path="service" element={<Service />} />
             <Route path="*" element={<NoPage />} />
           </Route>

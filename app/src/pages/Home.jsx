@@ -1,19 +1,27 @@
 import React from "react";
 import { Layout, theme, Steps } from "antd";
+import { useTheme } from "../components/theme/ThemeProvider";
+import { APIProvider, Map, Marker } from "@vis.gl/react-google-maps";
+
 const { Content } = Layout;
-import { ComboChart } from "../components/chart/ComboChart";
+
 function Home() {
+  const { isDarkMode } = useTheme();
+  const MapColors = isDarkMode ? "36c61296590b4f4e" : "740fa6c4a4fd7408";
+  const position = { lat: 13.804, lng: 100.576 };
   const {
     token: { colorBgContainer, borderRadiusLG },
   } = theme.useToken();
   return (
     <Content
-      className="m-[16px] p-[16px]"
-      style={{ background: colorBgContainer , borderRadius: borderRadiusLG }}
+      className="m-[16px] overflow-hidden"
+      style={{ background: colorBgContainer, borderRadius: borderRadiusLG }}
     >
-     <div className="chart w-2/3 overflow-hidden rounded-2xl">
-     <ComboChart/>
-     </div>
+      <APIProvider apiKey={import.meta.env.VITE_MAPS_API_KEY}>
+        <Map defaultCenter={position} defaultZoom={10} mapId={MapColors} minZoom={2}>
+          <Marker position={{lat: 13.955811, lng: 100.420914}} />
+        </Map>
+      </APIProvider>
     </Content>
   );
 }

@@ -32,14 +32,11 @@ bun run build
 คำสั่งนี้จะใช้ Vite หรือเครื่องมือที่กำหนดไว้ใน `package.json` เพื่อสร้าง Production Build ซึ่งจะถูกเก็บไว้ในโฟลเดอร์ที่กำหนดไว้ (`dist`).
 
 
-## backEnd
+## server
 
 ```bash
 cd backEnd
 bun install
-
-npx prisma migrate dev --name init
-npx prisma migrate dev
 ```
 ### 1. การรันแอปพลิเคชันในโหมด Development
 

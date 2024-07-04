@@ -5,6 +5,7 @@ import { useTheme } from "../components/theme/ThemeProvider";
 import {
   Avatar,
   Button,
+  Divider,
   Layout,
   Tag,
   Menu,
@@ -22,7 +23,7 @@ import {
   MdOutlineDarkMode,
   MdOutlineLightMode,
   MdOutlineLockReset,
-  MdLogout
+  MdLogout,
 } from "react-icons/md";
 import { PiFolderUserBold } from "react-icons/pi";
 
@@ -32,12 +33,13 @@ import ChangePassword from "../auth/ChangePassword";
 const { Header, Sider } = Layout;
 const IP = import.meta.env.VITE_DEFAULT_IP;
 const axiosInstance = axios.create({
-  baseURL: IP , 
-  withCredentials: true 
+  baseURL: IP,
+  withCredentials: true,
 });
 
 export default function LayoutRoot() {
   const location = useLocation();
+  const basePath = `/${location.pathname.split("/")[1]}`;
   const { isDarkMode, setIsDarkMode } = useTheme();
   const [collapsed, setCollapsed] = useState(false);
   const [path, setPath] = useState("");
@@ -53,15 +55,16 @@ export default function LayoutRoot() {
 
   const handleLogout = () => {
     setLogoutloading(true);
-    axiosInstance.get('/api/auth/logout')
-    .then(response => {
-      console.log(response.data); 
-      window.location.reload();
-    })
-    .catch(error => {
-      setLogoutloading(false);
-      console.error('Error clearing cookie:', error);
-    });
+    axiosInstance
+      .get("/api/logout")
+      .then((response) => {
+        console.log(response.data);
+        window.location.reload();
+      })
+      .catch((error) => {
+        setLogoutloading(false);
+        console.error("Error clearing cookie:", error);
+      });
   };
 
   useEffect(() => {
@@ -70,24 +73,24 @@ export default function LayoutRoot() {
   }, [location.pathname]);
 
   const content = (
-    <div className="flex flex-col gap-2"> 
+    <div className="flex flex-col gap-2">
       <Btn
         color="warning"
         size="sm"
         radius="sm"
         variant="light"
-        endContent={<MdOutlineLockReset size={22}/>}
+        endContent={<MdOutlineLockReset size={22} />}
         className="w-full"
-        onPress={()=>setIsModalOpen(true)}
+        onPress={() => setIsModalOpen(true)}
       >
-      Change Password
+        Change Password
       </Btn>
       <Btn
         color="danger"
         size="sm"
         radius="sm"
         variant="ghost"
-        endContent={<MdLogout size={22}/>}
+        endContent={<MdLogout size={22} />}
         className="w-full"
         isLoading={logoutloading}
         onPress={handleLogout}
@@ -101,6 +104,7 @@ export default function LayoutRoot() {
     <Layout className="h-screen">
       <Sider
         width={250}
+        collapsedWidth="0"
         trigger={null}
         collapsible
         collapsed={collapsed}
@@ -110,15 +114,15 @@ export default function LayoutRoot() {
       >
         <div className="flex w-full h-[80px] justify-between items-center px-5">
           {isDarkMode ? (
-            <Image width={80} src="LogoD.png" />
+            <Image width={80} src="/LogoD.png" />
           ) : (
-            <Image width={80} src="LogoL.png" />
+            <Image width={80} src="/LogoL.png" />
           )}
 
           {!collapsed && (
             <div className="flex gap-3 items-center">
               <div className="Img">
-                <Avatar src="phonsing.jpg" className="m-[1px]" />
+                <Avatar src="/phonsing.jpg" className="m-[1px]" />
               </div>
               <Popover
                 placement="bottomLeft"
@@ -135,11 +139,14 @@ export default function LayoutRoot() {
             </div>
           )}
         </div>
+        <div className="px-2">
+          <hr />
+        </div>
         <Menu
-          className="px-2"
+          className="px-1"
           mode="inline"
           defaultSelectedKeys={["/"]}
-          selectedKeys={location.pathname}
+          selectedKeys={basePath}
           items={[
             {
               key: "/",
@@ -158,6 +165,9 @@ export default function LayoutRoot() {
             },
           ]}
         />
+        <div className="px-2">
+          <hr />
+        </div>
       </Sider>
       <Layout>
         <Header
@@ -187,7 +197,10 @@ export default function LayoutRoot() {
         <Tag bordered={false} color="blue" className="mt-2 ml-4 w-min">
           {path}
         </Tag>
-        <ChangePassword isModalOpen={isModalOpen} setIsModalOpen={setIsModalOpen}/>
+        <ChangePassword
+          isModalOpen={isModalOpen}
+          setIsModalOpen={setIsModalOpen}
+        />
         <Outlet />
       </Layout>
     </Layout>

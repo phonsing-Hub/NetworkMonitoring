@@ -1,4 +1,5 @@
 import React from "react";
+import { useNavigate } from "react-router-dom";
 import {
   Table,
   TableHeader,
@@ -38,13 +39,14 @@ const INITIAL_VISIBLE_COLUMNS = [
 ];
 
 export default function App({ users }) {
+  const navigate = useNavigate();
   const [filterValue, setFilterValue] = React.useState("");
   const [selectedKeys, setSelectedKeys] = React.useState(new Set([]));
   const [visibleColumns, setVisibleColumns] = React.useState(
     new Set(INITIAL_VISIBLE_COLUMNS)
   );
   const [statusFilter, setStatusFilter] = React.useState("all");
-  const [rowsPerPage, setRowsPerPage] = React.useState(10);
+  const [rowsPerPage, setRowsPerPage] = React.useState(5);
   const [sortDescriptor, setSortDescriptor] = React.useState({
     column: "age",
     direction: "ascending",
@@ -250,7 +252,7 @@ export default function App({ users }) {
                 ))}
               </DropdownMenu>
             </Dropdown>
-            <Button icon={<FiUserPlus />}>Add New</Button>
+            <Button icon={<FiUserPlus />} onClick={()=>navigate("create")}>Add New</Button>
           </div>
         </div>
         <div className="flex justify-between items-center">
@@ -291,9 +293,9 @@ export default function App({ users }) {
             : `${selectedKeys.size} of ${filteredItems.length} selected`}
         </span>
         <Pagination
-          isCompact
           showControls
-          showShadow
+           showShadow
+          variant="faded"
           color="primary"
           page={page}
           total={pages}
