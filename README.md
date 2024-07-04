@@ -35,7 +35,7 @@ bun run build
 ## server
 
 ```bash
-cd backEnd
+cd server
 bun install
 ```
 ### 1. การรันแอปพลิเคชันในโหมด Development
