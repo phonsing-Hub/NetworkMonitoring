@@ -1,4 +1,5 @@
 import React from "react";
+import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import {
   Table,
@@ -12,8 +13,6 @@ import {
   Dropdown,
   DropdownMenu,
   DropdownItem,
-  Chip,
-  User,
   Pagination,
 } from "@nextui-org/react";
 import { Button, Empty } from "antd";
@@ -24,21 +23,15 @@ import { FaChevronDown } from "react-icons/fa";
 import { columns, statusOptions } from "./data";
 import { capitalize } from "./utils";
 
-const statusColorMap = {
-  Active: "success",
-  Paused: "danger",
-  Vacation: "warning",
-};
-
 const INITIAL_VISIBLE_COLUMNS = [
   "id",
-  "name",
-  "department",
+  "target",
   "status",
+  "responseTime",
   "actions",
 ];
 
-export default function App({ users }) {
+export default function App({ hosts }) {
   const navigate = useNavigate();
   const [filterValue, setFilterValue] = React.useState("");
   const [selectedKeys, setSelectedKeys] = React.useState(new Set([]));
@@ -64,24 +57,24 @@ export default function App({ users }) {
   }, [visibleColumns]);
 
   const filteredItems = React.useMemo(() => {
-    let filteredUsers = [...users];
+    let filteredHosts = [...hosts];
 
     if (hasSearchFilter) {
-      filteredUsers = filteredUsers.filter((user) =>
-        user.name.toLowerCase().includes(filterValue.toLowerCase())
+      filteredHosts = filteredHosts.filter((hosts) =>
+        hosts.host.toLowerCase().includes(filterValue.toLowerCase())
       );
     }
     if (
       statusFilter !== "all" &&
       Array.from(statusFilter).length !== statusOptions.length
     ) {
-      filteredUsers = filteredUsers.filter((user) =>
-        Array.from(statusFilter).includes(user.status)
+      filteredHosts = filteredHosts.filter((hosts) =>
+        Array.from(statusFilter).includes(hosts.status)
       );
     }
 
-    return filteredUsers;
-  }, [users, filterValue, statusFilter]);
+    return filteredHosts;
+  }, [hosts, filterValue, statusFilter]);
 
   const pages = Math.ceil(filteredItems.length / rowsPerPage);
 
@@ -102,51 +95,18 @@ export default function App({ users }) {
     });
   }, [sortDescriptor, items]);
 
-  const renderCell = React.useCallback((user, columnKey) => {
-    const cellValue = user[columnKey];
-
+  const renderCell = React.useCallback((host, columnKey) => {
+    const cellValue = host[columnKey];
     switch (columnKey) {
-      case "name":
-        return (
-          <User
-            avatarProps={{
-              radius: "lg",
-              src: user.images,
-              isBordered: true,
-              color: "rgb(59 130 246 / 0.5);",
-            }}
-            description={user.email}
-            name={cellValue}
-          >
-            {user.email}
-          </User>
-        );
-      case "status":
-        return (
-          <Chip
-            className="capitalize"
-            color={statusColorMap[user.status]}
-            size="sm"
-            variant="flat"
-          >
-            {cellValue}
-          </Chip>
-        );
-      case "department":
-        return (
-          <div className="flex flex-col">
-            <p className="text-bold text-sm capitalize">{cellValue}</p>
-            <p className="text-bold text-sm capitalize text-default-400">
-              {user.role}
-            </p>
-          </div>
-        );
+      
+    case 'responsetime':
+      return <p>{host.responsetime}</p>;
       case "actions":
         return (
           <div className="relative flex justify-end items-center gap-2">
             <Dropdown>
               <DropdownTrigger>
-                <Button isIconOnly size="sm" variant="light">
+                <Button  size="sm" variant="light">
                   <TiThListOutline className="text-default-300" />
                 </Button>
               </DropdownTrigger>
@@ -257,7 +217,7 @@ export default function App({ users }) {
         </div>
         <div className="flex justify-between items-center">
           <span className="text-default-400 text-small">
-            Total {users.length} users
+            Total {hosts.length} hosts
           </span>
           <label className="flex items-center text-default-400 text-small">
             Rows per page:
@@ -279,7 +239,7 @@ export default function App({ users }) {
     statusFilter,
     visibleColumns,
     onRowsPerPageChange,
-    users.length,
+    hosts.length,
     onSearchChange,
     hasSearchFilter,
   ]);

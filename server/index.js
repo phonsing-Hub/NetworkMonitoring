@@ -1,12 +1,13 @@
 require('dotenv').config();
 const express = require("express");
 const cookieParser = require("cookie-parser");
-const logger = require("morgan");
+const morgan = require("morgan");
+const moment = require('moment-timezone'); 
 const cors = require('cors');
-const createError = require("http-errors");
+const rfs = require('rotating-file-stream');
 const jwt = require("jsonwebtoken");
-const path = require("path"); 
 const { status } = require("./db");
+const path = require("path"); 
 const app = express();
 
 app.set("views", path.join(__dirname, "views"));
@@ -17,16 +18,32 @@ const corsOptions = {
   credentials: true,
 };
 
+const accessLogStream = rfs.createStream('access.log', {
+  interval: '1d', // rotate daily
+  path: path.join(__dirname, 'log')
+})
+
+morgan.token('date', (req, res, tz) => {
+  const bangkokTime = moment().tz('Asia/Bangkok').format('YYYY-MM-DDTHH:mm:ss.SSSZ');
+  // console.log(bangkokTime);
+  return bangkokTime;
+});
+
 app.use(cors(corsOptions));
 app.use(express.json());
 app.use(cookieParser());
-app.use(logger("dev")); 
+app.use(morgan('dev'));
+app.use(morgan(':remote-addr - :remote-user [:date] ":method :url HTTP/:http-version" :status :res[content-length] ":referrer" ":user-agent"', { stream: accessLogStream }));
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, "public")));
-//status(); //Check database connection status
+status(); //Check database connection status
 
 const auth = require("./routers/auth.routes");
+const ping = require("./routers/ping.routes");
 
+app.get("/", (req, res) => {
+  res.render("index");
+});
 app.post("/api/token",(req, res) =>{
   try {
     const empToken = req.cookies._auth;
@@ -40,7 +57,8 @@ app.post("/api/token",(req, res) =>{
     return res.status(401).json({ message: "isLogin" });
   }});
 
-app.use('/api',auth);
+app.use('/api', auth);
+app.use('/api', ping);
 
 app.use(function (err, req, res, next) {
   res.locals.message = err.message;

@@ -13,16 +13,18 @@ function Home() {
     token: { colorBgContainer, borderRadiusLG },
   } = theme.useToken();
   return (
-    <Content
-      className="m-[16px] overflow-hidden"
+  
+     <Content
+      className="m-[16px] p-[16px]"
       style={{ background: colorBgContainer, borderRadius: borderRadiusLG }}
     >
-      <APIProvider apiKey={import.meta.env.VITE_MAPS_API_KEY}>
+    <APIProvider apiKey={import.meta.env.VITE_MAPS_API_KEY}>
         <Map defaultCenter={position} defaultZoom={10} mapId={MapColors} minZoom={2}>
           <Marker position={{lat: 13.955811, lng: 100.420914}} />
         </Map>
       </APIProvider>
     </Content>
+
   );
 }
 

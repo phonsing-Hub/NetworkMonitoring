@@ -64,6 +64,9 @@ router.post("/auth", async (req, res) => {
 router.put("/changepassword", VerifyToken, async (req, res) => {
   try {
     const { OldPassword, NewPassword } = req.body;
+    if (!OldPassword || !NewPassword) 
+      return res.status(401).json({ message: 'Old password and new password must not be empty.' });
+    
     const decodedToken = req.decodedToken;
     const result = await db
       .select("name_id", "password")

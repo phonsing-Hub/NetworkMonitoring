@@ -6,8 +6,8 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import ThemeProvider from "./components/theme/ThemeProvider";
 import LayoutRoot from "./pages/Layout";
 import Home from "./pages/Home";
-import Employee from "./pages/Employee";
-import Create from "./pages/Create";
+import Devices from "./pages/Devices";
+// import Create from "./pages/Create";
 import Service from "./pages/Service";
 import NoPage from "./pages/NoPage";
 import Login from "./auth/Login";
@@ -41,8 +41,8 @@ export default function App() {
         <Routes>
           <Route path="/" element={<LayoutRoot />}>
             <Route index element={<Home />} />
-            <Route path="employee" element={<Employee />} />
-            <Route path="employee/create" element={<Create />} />
+            <Route path="devices" element={<Devices />} />
+            {/* <Route path="employee/create" element={<Create />} /> */}
             <Route path="service" element={<Service />} />
             <Route path="*" element={<NoPage />} />
           </Route>

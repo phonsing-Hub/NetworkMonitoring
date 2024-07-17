@@ -5,7 +5,6 @@ import { useTheme } from "../components/theme/ThemeProvider";
 import {
   Avatar,
   Button,
-  Divider,
   Layout,
   Tag,
   Menu,
@@ -16,16 +15,15 @@ import {
 } from "antd";
 import { Button as Btn } from "@nextui-org/react";
 import { MenuFoldOutlined, MenuUnfoldOutlined } from "@ant-design/icons";
-import { IoSettingsOutline } from "react-icons/io5";
+import { IoEarthSharp, IoSettingsOutline } from "react-icons/io5";
 import {
-  MdOutlineAddHomeWork,
-  MdOutlineBubbleChart,
   MdOutlineDarkMode,
   MdOutlineLightMode,
   MdOutlineLockReset,
   MdLogout,
 } from "react-icons/md";
-import { PiFolderUserBold } from "react-icons/pi";
+import { TiRss } from "react-icons/ti";
+import { TbDevicesSearch } from "react-icons/tb";
 
 //components
 import ChangePassword from "../auth/ChangePassword";
@@ -150,17 +148,17 @@ export default function LayoutRoot() {
           items={[
             {
               key: "/",
-              icon: <MdOutlineAddHomeWork size={24} />,
+              icon: <IoEarthSharp size={24} />,
               label: <Link to="/">Home</Link>,
             },
             {
-              key: "/employee",
-              icon: <PiFolderUserBold size={24} />,
-              label: <Link to="/employee">Employee</Link>,
+              key: "/devices",
+              icon: <TbDevicesSearch size={24} />,
+              label: <Link to="/devices">Devices</Link>,
             },
             {
               key: "/service",
-              icon: <MdOutlineBubbleChart size={24} />,
+              icon: <TiRss size={24} />,
               label: <Link to="/service">Service</Link>,
             },
           ]}
