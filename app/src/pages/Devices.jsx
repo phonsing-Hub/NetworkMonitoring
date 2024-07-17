@@ -3,33 +3,35 @@ import axios from "axios";
 import { Layout, message, theme } from "antd";
 import { Progress } from "@nextui-org/react";
 //components
-import TableEmp from "../components/tabledevices/TableMNR";
+import TableMNR from "../components/tabledevices/TableMNR";
 
 const { Content } = Layout;
 const IP = import.meta.env.VITE_DEFAULT_IP;
 
 export default function Devices() {
-  const [devices, setDevices] = useState([]);
+  const [devices, setDevices] = useState([null]);
   const [loading, setLoading] = useState(false);
   const {
     token: { colorBgContainer, borderRadiusLG },
   } = theme.useToken();
 
-  // useEffect(() => {
-  //   const eventSource = new EventSource("http://localhost:3000/api/ping");
-  //   eventSource.onmessage = (event) => {
-  //     const newStatus = JSON.parse(event.data);
-  //     console.log(newStatus);
-  //     setHosts(newStatus);
-  //   };
-
-  //   eventSource.onerror = (error) => {
-  //     console.error("EventSource failed:", error);
-  //   };
-  //   return () => {
-  //     eventSource.close();
-  //   };
-  // }, []);
+  async function getHosts() {
+    setLoading(true);
+   try {
+    const result = await axios.get(`${IP}/api/getHosts`);
+   // console.log(result.data.hosts);
+    setDevices(result.data.hosts);
+    setLoading(false);
+   } catch (error) {
+    setLoading(false);
+    console.log(error.response.data.message);
+    message.error(error.response.data.message);
+   }
+    
+  }
+  useEffect(() => {
+    getHosts();
+  }, []);
 
   return (
     <div className="overflow-auto">
@@ -46,7 +48,7 @@ export default function Devices() {
           />
         )}
 
-        <TableEmp hosts={devices} />
+        <TableMNR devices={devices} />
       </Content>
     </div>
   );

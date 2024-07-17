@@ -1,6 +1,6 @@
 import ReactDOM from "react-dom/client";
 import "./index.css";
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import ThemeProvider from "./components/theme/ThemeProvider";
@@ -53,7 +53,7 @@ export default function App() {
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(
-  <ThemeProvider>
-    <App />
-  </ThemeProvider>
+    <ThemeProvider>
+      <App />
+    </ThemeProvider>
 );

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useCallback, useMemo, useEffect } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import {
@@ -14,41 +14,53 @@ import {
   DropdownMenu,
   DropdownItem,
   Pagination,
+  Chip,
+  Link,
+  Button as Btn,
+  Listbox,
+  ListboxItem,
+  cn,
+  CardHeader,
+  CardBody,
+  CardFooter,
+  Divider,
+  Card,
+  Image,
 } from "@nextui-org/react";
-import { Button, Empty } from "antd";
+import { GrDocumentUpdate } from "react-icons/gr";
+import { DeleteDocumentIcon } from "../icons/DeleteDocumentIcon.jsx";
+import { Button, Empty, message } from "antd";
 import { FiUserPlus } from "react-icons/fi";
-import { TiThListOutline } from "react-icons/ti";
-import { TbFolderSearch } from "react-icons/tb";
+import { AiTwotoneStop } from "react-icons/ai";
+import { IoMdStar } from "react-icons/io";
+import { TbFolderSearch, TbWorldCheck } from "react-icons/tb";
 import { FaChevronDown } from "react-icons/fa";
+import { IoCloseSharp } from "react-icons/io5";
 import { columns, statusOptions } from "./data";
 import { capitalize } from "./utils";
 
-const INITIAL_VISIBLE_COLUMNS = [
-  "id",
-  "target",
-  "status",
-  "responseTime",
-  "actions",
-];
+const INITIAL_VISIBLE_COLUMNS = ["id", "name", "ip", "status", "points"];
+const iconClasses =
+  "text-xl text-default-500 pointer-events-none flex-shrink-0";
 
-export default function App({ hosts }) {
+export default function App({ devices }) {
   const navigate = useNavigate();
-  const [filterValue, setFilterValue] = React.useState("");
-  const [selectedKeys, setSelectedKeys] = React.useState(new Set([]));
-  const [visibleColumns, setVisibleColumns] = React.useState(
+  const [cascaderVisible, setCascaderVisible] = useState(false);
+  const [cascaderPosition, setCascaderPosition] = useState({ x: 0, y: 0 });
+  const [filterValue, setFilterValue] = useState("");
+  const [selectedKeys, setSelectedKeys] = useState(new Set([]));
+  const [visibleColumns, setVisibleColumns] = useState(
     new Set(INITIAL_VISIBLE_COLUMNS)
   );
-  const [statusFilter, setStatusFilter] = React.useState("all");
-  const [rowsPerPage, setRowsPerPage] = React.useState(5);
-  const [sortDescriptor, setSortDescriptor] = React.useState({
-    column: "age",
-    direction: "ascending",
-  });
-  const [page, setPage] = React.useState(1);
+  const [statusFilter, setStatusFilter] = useState("all");
+  const [rowsPerPage, setRowsPerPage] = useState(5);
+  const [sortDescriptor, setSortDescriptor] = useState({});
+  const [page, setPage] = useState(1);
+  const [edit, setEdit] = useState();
 
   const hasSearchFilter = Boolean(filterValue);
 
-  const headerColumns = React.useMemo(() => {
+  const headerColumns = useMemo(() => {
     if (visibleColumns === "all") return columns;
 
     return columns.filter((column) =>
@@ -56,36 +68,40 @@ export default function App({ hosts }) {
     );
   }, [visibleColumns]);
 
-  const filteredItems = React.useMemo(() => {
-    let filteredHosts = [...hosts];
+  const filteredItems = useMemo(() => {
+    let filteredDevices = [...devices];
 
     if (hasSearchFilter) {
-      filteredHosts = filteredHosts.filter((hosts) =>
-        hosts.host.toLowerCase().includes(filterValue.toLowerCase())
-      );
-    }
-    if (
-      statusFilter !== "all" &&
-      Array.from(statusFilter).length !== statusOptions.length
-    ) {
-      filteredHosts = filteredHosts.filter((hosts) =>
-        Array.from(statusFilter).includes(hosts.status)
+      filteredDevices = filteredDevices.filter(
+        (device) =>
+          device.name.toLowerCase().includes(filterValue.toLowerCase()) ||
+          device.id
+            .toString()
+            .toLowerCase()
+            .includes(filterValue.toLowerCase()) ||
+          device.ip.toString().toLowerCase().includes(filterValue.toLowerCase())
       );
     }
 
-    return filteredHosts;
-  }, [hosts, filterValue, statusFilter]);
+    if (statusFilter !== "all" && statusFilter.size !== statusOptions.length) {
+      filteredDevices = filteredDevices.filter((device) =>
+        statusFilter.has(device.status)
+      );
+    }
+
+    return filteredDevices;
+  }, [devices, filterValue, statusFilter, hasSearchFilter, statusOptions]);
 
   const pages = Math.ceil(filteredItems.length / rowsPerPage);
 
-  const items = React.useMemo(() => {
+  const items = useMemo(() => {
     const start = (page - 1) * rowsPerPage;
     const end = start + rowsPerPage;
 
     return filteredItems.slice(start, end);
   }, [page, filteredItems, rowsPerPage]);
 
-  const sortedItems = React.useMemo(() => {
+  const sortedItems = useMemo(() => {
     return [...items].sort((a, b) => {
       const first = a[sortDescriptor.column];
       const second = b[sortDescriptor.column];
@@ -95,52 +111,68 @@ export default function App({ hosts }) {
     });
   }, [sortDescriptor, items]);
 
-  const renderCell = React.useCallback((host, columnKey) => {
-    const cellValue = host[columnKey];
+  const renderCell = useCallback((device, columnKey) => {
+    const cellValue = device[columnKey];
     switch (columnKey) {
-      
-    case 'responsetime':
-      return <p>{host.responsetime}</p>;
-      case "actions":
+      case "name":
+        return <p className="font-bold text-sm">{cellValue}</p>;
+
+      case "ip":
         return (
-          <div className="relative flex justify-end items-center gap-2">
-            <Dropdown>
-              <DropdownTrigger>
-                <Button  size="sm" variant="light">
-                  <TiThListOutline className="text-default-300" />
-                </Button>
-              </DropdownTrigger>
-              <DropdownMenu>
-                <DropdownItem>View</DropdownItem>
-                <DropdownItem>Edit</DropdownItem>
-                <DropdownItem>Delete</DropdownItem>
-              </DropdownMenu>
-            </Dropdown>
-          </div>
+          <Link
+            className="font-bold text-sm"
+            underline="hover"
+            href="#"
+            showAnchorIcon
+            color="foreground"
+          >
+            {cellValue}
+          </Link>
         );
+
+      case "status":
+        return (
+          <Chip
+            radius="sm"
+            endContent={
+              cellValue === "Active" ? <TbWorldCheck /> : <AiTwotoneStop />
+            }
+            color={cellValue === "Active" ? "success" : "primary"}
+          >
+            {cellValue}
+          </Chip>
+        );
+
+      case "points":
+        const elements = [];
+        for (let i = 0; i < cellValue; i++)
+          elements.push(<IoMdStar key={i} size={16} />);
+
+        return <div className="flex">{elements}</div>;
+
       default:
         return cellValue;
     }
   }, []);
 
-  const onNextPage = React.useCallback(() => {
+  const onNextPage = useCallback(() => {
     if (page < pages) {
       setPage(page + 1);
     }
   }, [page, pages]);
 
-  const onPreviousPage = React.useCallback(() => {
+  const onPreviousPage = useCallback(() => {
     if (page > 1) {
       setPage(page - 1);
     }
   }, [page]);
 
-  const onRowsPerPageChange = React.useCallback((e) => {
+  const onRowsPerPageChange = useCallback((e) => {
     setRowsPerPage(Number(e.target.value));
     setPage(1);
   }, []);
 
-  const onSearchChange = React.useCallback((value) => {
+  const onSearchChange = useCallback((value) => {
     if (value) {
       setFilterValue(value);
       setPage(1);
@@ -149,12 +181,12 @@ export default function App({ hosts }) {
     }
   }, []);
 
-  const onClear = React.useCallback(() => {
+  const onClear = useCallback(() => {
     setFilterValue("");
     setPage(1);
   }, []);
 
-  const topContent = React.useMemo(() => {
+  const topContent = useMemo(() => {
     return (
       <div className="flex flex-col gap-4">
         <div className="flex justify-between gap-3 items-end">
@@ -212,12 +244,14 @@ export default function App({ hosts }) {
                 ))}
               </DropdownMenu>
             </Dropdown>
-            <Button icon={<FiUserPlus />} onClick={()=>navigate("create")}>Add New</Button>
+            <Button icon={<FiUserPlus />} onClick={() => navigate("create")}>
+              Add New
+            </Button>
           </div>
         </div>
         <div className="flex justify-between items-center">
           <span className="text-default-400 text-small">
-            Total {hosts.length} hosts
+            Total {devices.length} devices
           </span>
           <label className="flex items-center text-default-400 text-small">
             Rows per page:
@@ -239,12 +273,12 @@ export default function App({ hosts }) {
     statusFilter,
     visibleColumns,
     onRowsPerPageChange,
-    hosts.length,
+    devices.length,
     onSearchChange,
     hasSearchFilter,
   ]);
 
-  const bottomContent = React.useMemo(() => {
+  const bottomContent = useMemo(() => {
     return (
       <div className="py-2 px-2 flex justify-between items-center">
         <span className="w-[30%] text-small text-default-400">
@@ -254,7 +288,7 @@ export default function App({ hosts }) {
         </span>
         <Pagination
           showControls
-           showShadow
+          showShadow
           variant="faded"
           color="primary"
           page={page}
@@ -269,44 +303,156 @@ export default function App({ hosts }) {
     );
   }, [selectedKeys, items.length, page, pages, hasSearchFilter]);
 
+  const handleRowContextMenu = (event, item) => {
+    event.preventDefault();
+    setEdit(item);
+    setCascaderVisible(true);
+    setCascaderPosition({ x: event.clientX, y: event.clientY });
+  };
+
+  const handleCascaderChange = (key) => {
+    switch (key) {
+      case "active":
+        //console.log("set Active");
+        return message.success("set Active");
+
+      case "paused":
+        //console.log("set Paused");
+        return message.success("set paused");
+
+      default:
+        break;
+    }
+  };
+
+  // useEffect(() => {
+  //   if (selectedKeys === "all") return console.log(selectedKeys);
+  //   const keysArray = Array.from(selectedKeys);
+  //   console.log(keysArray);
+  // }, [selectedKeys]);
+
   return (
-    <Table
-      aria-label="Example table with custom cells, pagination and sorting"
-      isHeaderSticky
-      bottomContent={bottomContent}
-      bottomContentPlacement="outside"
-      classNames={{
-        wrapper: "max-h-[700px] bg-transparent	",
-      }}
-      selectedKeys={selectedKeys}
-      selectionMode="multiple"
-      color="success"
-      sortDescriptor={sortDescriptor}
-      topContent={topContent}
-      topContentPlacement="outside"
-      onSelectionChange={setSelectedKeys}
-      onSortChange={setSortDescriptor}
-    >
-      <TableHeader columns={headerColumns}>
-        {(column) => (
-          <TableColumn
-            key={column.uid}
-            align={column.uid === "actions" ? "center" : "start"}
-            allowsSorting={column.sortable}
-          >
-            {column.name}
-          </TableColumn>
-        )}
-      </TableHeader>
-      <TableBody emptyContent={<Empty />} items={sortedItems}>
-        {(item) => (
-          <TableRow key={item.id}>
-            {(columnKey) => (
-              <TableCell>{renderCell(item, columnKey)}</TableCell>
-            )}
-          </TableRow>
-        )}
-      </TableBody>
-    </Table>
+    <>
+      <Table
+        aria-label="Example table with custom cells, pagination and sorting"
+        isHeaderSticky
+        isStriped
+        bottomContent={bottomContent}
+        bottomContentPlacement="outside"
+        classNames={{
+          wrapper: "max-h-[700px] bg-transparent	",
+        }}
+        selectedKeys={selectedKeys}
+        selectionMode="multiple"
+        color="success"
+        sortDescriptor={sortDescriptor}
+        topContent={topContent}
+        topContentPlacement="outside"
+        onSelectionChange={setSelectedKeys}
+        onSortChange={setSortDescriptor}
+        //onRowAction={setSelectedRowData}
+      >
+        <TableHeader columns={headerColumns}>
+          {(column) => (
+            <TableColumn
+              key={column.uid}
+              align={column.uid === "actions" ? "center" : "start"}
+              allowsSorting={column.sortable}
+            >
+              {column.name}
+            </TableColumn>
+          )}
+        </TableHeader>
+        <TableBody emptyContent={<Empty />} items={sortedItems}>
+          {(item) => (
+            <TableRow
+              key={item.id}
+              className="chart"
+              onContextMenu={(event) => handleRowContextMenu(event, item)}
+            >
+              {(columnKey) => (
+                <TableCell>{renderCell(item, columnKey)}</TableCell>
+              )}
+            </TableRow>
+          )}
+        </TableBody>
+      </Table>
+      {cascaderVisible && (
+        <div
+          style={{
+            position: "absolute",
+            top: cascaderPosition.y,
+            left: cascaderPosition.x,
+            zIndex: 1000,
+          }}
+        >
+          <Card className="max-w-[400px]">
+            <CardHeader className="flex gap-3 justify-between">
+              <div className="flex flex-col">
+                <p className="text-md">Edit {edit.name}</p>
+              </div>
+              <button onClick={() => setCascaderVisible(false)}>
+                <IoCloseSharp />
+              </button>
+            </CardHeader>
+            <Divider />
+            <CardBody>
+              <Listbox
+                variant="flat"
+                aria-label="Listbox menu with descriptions"
+                onAction={handleCascaderChange}
+              >
+                <ListboxItem
+                  key="update"
+                  //description="Create a new file"
+                  startContent={<GrDocumentUpdate className={iconClasses} />}
+                >
+                  Update
+                </ListboxItem>
+                <ListboxItem
+                  key="active"
+                  //description="Create a new file"
+                  startContent={<TbWorldCheck className={iconClasses} />}
+                >
+                  Set active
+                </ListboxItem>
+                <ListboxItem
+                  key="paused"
+                  //description="Create a new file"
+                  startContent={<AiTwotoneStop className={iconClasses} />}
+                >
+                  Set paused
+                </ListboxItem>
+                <ListboxItem
+                  key="delete"
+                  className="text-danger"
+                  color="danger"
+                  description="Permanently delete the Host"
+                  startContent={
+                    <DeleteDocumentIcon
+                      className={cn(iconClasses, "text-danger")}
+                    />
+                  }
+                >
+                  Delete file
+                </ListboxItem>
+              </Listbox>
+            </CardBody>
+            <Divider />
+            <CardFooter>
+              <Link
+                className="font-bold text-sm"
+                underline="hover"
+                href="#"
+                showAnchorIcon
+                color="foreground"
+              >
+                {edit.ip}
+              </Link>
+            </CardFooter>
+          </Card>
+        </div>
+      )}
+    </>
   );
 }
