@@ -65,23 +65,36 @@ router.get('/getHost/:id', async (req, res) => {
 
 router.post("/createHost", async (req, res) => {
   try {
-    const { name, ip, latitude, longitude, points } = req.body;
+    const { name, ip, latitude, longitude, status, points, details } = req.body;
     if (!name || !ip)
       return res
         .status(401)
         .json({ message: "Name and IP must not be empty." });
+
+    const check = await db("Hosts")
+        .count('* as count')
+        .where('name', name)
+        .orWhere('ip', ip)
+        .first();
+
+      if (check.count > 0) 
+        return res.status(401).json({message: "The host with the specified name or IP already exists"});
+      
     const result = await db("Hosts").insert({
-      name: name,
-      ip: ip,
-      latitude: latitude,
-      longitude: longitude,
-      points: points,
+      name,
+      ip,
+      latitude,
+      longitude,
+      status,
+      points,
+      details
     });
 
     if (result)
       return res.status(201).json({ message: "Host created successfully." });
-    else return res.status(500).json({ message: "Failed to create host." });
+    else return res.status(401).json({ message: "Failed to create host." });
   } catch (error) {
+    //console.log(error)
     res
       .status(500)
       .json({ message: "Error creating host", error: error.message });
@@ -91,7 +104,7 @@ router.post("/createHost", async (req, res) => {
 router.put("/updateHost/:id", async (req, res) => {
   try {
     const { id } = req.params;
-    const { name, ip, latitude, longitude, points } = req.body;
+    const { name, ip, latitude, longitude, status, points, details } = req.body;
 
     if (!name || !ip)
       return res
@@ -99,11 +112,13 @@ router.put("/updateHost/:id", async (req, res) => {
         .json({ message: "Name and IP must not be empty." });
 
     const result = await db("Hosts").where({ id: id }).update({
-      name: name,
-      ip: ip,
-      latitude: latitude,
-      longitude: longitude,
-      points: points,
+      name,
+      ip,
+      latitude,
+      longitude,
+      status,
+      points,
+      details
     });
 
     if (result)

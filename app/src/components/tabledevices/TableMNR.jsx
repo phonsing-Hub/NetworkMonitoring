@@ -1,6 +1,4 @@
-import React, { useState, useCallback, useMemo, useEffect } from "react";
-import axios from "axios";
-import { useNavigate } from "react-router-dom";
+import React, { useState, useCallback, useMemo } from "react";
 import {
   Table,
   TableHeader,
@@ -30,12 +28,11 @@ import {
 import { GrDocumentUpdate } from "react-icons/gr";
 import { DeleteDocumentIcon } from "../icons/DeleteDocumentIcon.jsx";
 import { Button, Empty, message } from "antd";
-import { FiUserPlus } from "react-icons/fi";
 import { AiTwotoneStop } from "react-icons/ai";
 import { IoMdStar } from "react-icons/io";
 import { TbFolderSearch, TbWorldCheck } from "react-icons/tb";
 import { FaChevronDown } from "react-icons/fa";
-import { IoCloseSharp } from "react-icons/io5";
+import { IoCloseSharp, IoEarthSharp } from "react-icons/io5";
 import { columns, statusOptions } from "./data";
 import { capitalize } from "./utils";
 
@@ -43,8 +40,11 @@ const INITIAL_VISIBLE_COLUMNS = ["id", "name", "ip", "status", "points"];
 const iconClasses =
   "text-xl text-default-500 pointer-events-none flex-shrink-0";
 
-export default function App({ devices }) {
-  const navigate = useNavigate();
+export default function TableMNR({
+  devices,
+  setAddModalDevices,
+  UpdateHost,
+}) {
   const [cascaderVisible, setCascaderVisible] = useState(false);
   const [cascaderPosition, setCascaderPosition] = useState({ x: 0, y: 0 });
   const [filterValue, setFilterValue] = useState("");
@@ -53,7 +53,7 @@ export default function App({ devices }) {
     new Set(INITIAL_VISIBLE_COLUMNS)
   );
   const [statusFilter, setStatusFilter] = useState("all");
-  const [rowsPerPage, setRowsPerPage] = useState(5);
+  const [rowsPerPage, setRowsPerPage] = useState(10);
   const [sortDescriptor, setSortDescriptor] = useState({});
   const [page, setPage] = useState(1);
   const [edit, setEdit] = useState();
@@ -244,7 +244,10 @@ export default function App({ devices }) {
                 ))}
               </DropdownMenu>
             </Dropdown>
-            <Button icon={<FiUserPlus />} onClick={() => navigate("create")}>
+            <Button
+              icon={<IoEarthSharp />}
+              onClick={() => setAddModalDevices(true)}
+            >
               Add New
             </Button>
           </div>
@@ -312,6 +315,10 @@ export default function App({ devices }) {
 
   const handleCascaderChange = (key) => {
     switch (key) {
+      case "update":
+        UpdateHost(edit.id);
+        setCascaderVisible(false);
+        break;
       case "active":
         //console.log("set Active");
         return message.success("set Active");
