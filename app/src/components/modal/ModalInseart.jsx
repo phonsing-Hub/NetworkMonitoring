@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import axios from "axios";
+import { useTheme } from "../theme/ThemeProvider";
 import {
   Input,
   Divider,
@@ -28,6 +29,8 @@ export default function ModalInseart({
   setAddModalDevices,
   getHosts,
 }) {
+  const { isDarkMode } = useTheme();
+  let themeMode = isDarkMode ? "dark" : "light";
   const [loading, setLoading] = useState(false);
   const [name, setName] = useState("");
   const [ip, setIp] = useState("");
@@ -98,7 +101,7 @@ export default function ModalInseart({
         ]}
       >
         <Divider />
-        <div className="grid grid-cols-2 gap-2 px-2 pt-2">
+        <div className={`${themeMode} grid grid-cols-2 gap-2 px-2 pt-2`}>
           <Input
             variant="faded"
             radius="sm"

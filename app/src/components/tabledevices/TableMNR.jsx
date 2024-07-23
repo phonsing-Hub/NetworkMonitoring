@@ -1,4 +1,5 @@
 import React, { useState, useCallback, useMemo } from "react";
+import axios from "axios";
 import {
   Table,
   TableHeader,
@@ -23,7 +24,6 @@ import {
   CardFooter,
   Divider,
   Card,
-  Image,
 } from "@nextui-org/react";
 import { GrDocumentUpdate } from "react-icons/gr";
 import { DeleteDocumentIcon } from "../icons/DeleteDocumentIcon.jsx";
@@ -36,12 +36,14 @@ import { IoCloseSharp, IoEarthSharp } from "react-icons/io5";
 import { columns, statusOptions } from "./data";
 import { capitalize } from "./utils";
 
-const INITIAL_VISIBLE_COLUMNS = ["id", "name", "ip", "status", "points"];
+const IP = import.meta.env.VITE_DEFAULT_IP;
+const INITIAL_VISIBLE_COLUMNS = ["name", "ip", "status", "points"];
 const iconClasses =
   "text-xl text-default-500 pointer-events-none flex-shrink-0";
 
 export default function TableMNR({
   devices,
+  getHosts,
   setAddModalDevices,
   UpdateHost,
 }) {
@@ -114,6 +116,9 @@ export default function TableMNR({
   const renderCell = useCallback((device, columnKey) => {
     const cellValue = device[columnKey];
     switch (columnKey) {
+      case "id":
+        return <p className="font-bold text-sm">{cellValue}</p>;
+
       case "name":
         return <p className="font-bold text-sm">{cellValue}</p>;
 
@@ -192,8 +197,8 @@ export default function TableMNR({
         <div className="flex justify-between gap-3 items-end">
           <Input
             isClearable
-            color="primary"
             radius="sm"
+            variant="faded"
             className="w-full sm:max-w-[22%]"
             placeholder="Search by name..."
             startContent={<TbFolderSearch />}
@@ -310,33 +315,68 @@ export default function TableMNR({
     event.preventDefault();
     setEdit(item);
     setCascaderVisible(true);
-    setCascaderPosition({ x: event.clientX, y: event.clientY });
+    const maxY = window.innerHeight - 300;
+    const maxX = window.innerWidth - 300;
+    setCascaderPosition({
+      x: Math.min(event.clientX, maxX),
+      y: Math.min(event.clientY, maxY),
+    });
   };
 
-  const handleCascaderChange = (key) => {
+  const handleCascaderChange = async (key) => {
     switch (key) {
       case "update":
         UpdateHost(edit.id);
         setCascaderVisible(false);
         break;
+
       case "active":
-        //console.log("set Active");
-        return message.success("set Active");
+        try {
+          await axios.patch(
+            `${IP}/api/updateHost/${edit.id}`,
+            { status: "Active" },
+            { withCredentials: true }
+          );
+          message.success(`${edit.name}set Active succsess`);
+          getHosts();
+          setCascaderVisible(false);
+        } catch (error) {
+          message.error(`${edit.name}set Active unsuccessful`);
+        }
+        break;
 
       case "paused":
-        //console.log("set Paused");
-        return message.success("set paused");
+        try {
+          await axios.patch(
+            `${IP}/api/updateHost/${edit.id}`,
+            { status: "Paused" },
+            { withCredentials: true }
+          );
+          message.success(`${edit.name}set Paused succsess`);
+          getHosts();
+          setCascaderVisible(false);
+        } catch (error) {
+          message.error(`${edit.name}set Paused unsuccessful`);
+        }
+        break;
+
+      case "delete":
+        try {
+          await axios.delete(`${IP}/api/deleteHost/${edit.id}`, {
+            withCredentials: true,
+          });
+          message.success(`Delete ${edit.name} succsess`);
+          getHosts();
+          setCascaderVisible(false);
+        } catch (error) {
+          message.error(`Delete ${edit.name} unsuccessful`);
+        }
+        break;
 
       default:
         break;
     }
   };
-
-  // useEffect(() => {
-  //   if (selectedKeys === "all") return console.log(selectedKeys);
-  //   const keysArray = Array.from(selectedKeys);
-  //   console.log(keysArray);
-  // }, [selectedKeys]);
 
   return (
     <>
@@ -396,7 +436,7 @@ export default function TableMNR({
           <Card className="max-w-[400px]">
             <CardHeader className="flex gap-3 justify-between">
               <div className="flex flex-col">
-                <p className="text-md">Edit {edit.name}</p>
+                <p className="text-md">{edit.name}:{edit.ip}</p>
               </div>
               <button onClick={() => setCascaderVisible(false)}>
                 <IoCloseSharp />
@@ -441,7 +481,7 @@ export default function TableMNR({
                     />
                   }
                 >
-                  Delete file
+                  Delete
                 </ListboxItem>
               </Listbox>
             </CardBody>

@@ -14,7 +14,7 @@ app.set("views", path.join(__dirname, "views"));
 app.set("view engine", "jade");
 
 const corsOptions = {
-  origin: ["http://localhost:5173"],
+  origin: ["http://localhost:5173","http://192.168.1.46:5173"],
   credentials: true,
 };
 
@@ -40,6 +40,7 @@ status(); //Check database connection status
 
 const auth = require("./routers/auth.routes");
 const ping = require("./routers/ping.routes");
+const location = require("./routers/location.routes");
 
 app.get("/", (req, res) => {
   res.render("index");
@@ -59,6 +60,7 @@ app.post("/api/token",(req, res) =>{
 
 app.use('/api', auth);
 app.use('/api', ping);
+app.use('/api', location);
 
 app.use(function (err, req, res, next) {
   res.locals.message = err.message;

@@ -62,6 +62,7 @@ export default function Devices() {
 
         <TableMNR
           devices={devices}
+          getHosts={getHosts}
           setAddModalDevices={setAddModalDevices}
           UpdateHost={UpdateHost}
         />
