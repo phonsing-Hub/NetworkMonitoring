@@ -10,11 +10,13 @@ export default function Service() {
  
 
   return (
+    <div className="overflow-auto">
     <Content
       className="m-[16px] p-[16px]"
       style={{ background: colorBgContainer, borderRadius: borderRadiusLG }}
     >
      <Tableservice/>
     </Content>
+    </div>
   );
 }

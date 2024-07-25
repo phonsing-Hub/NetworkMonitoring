@@ -61,7 +61,7 @@ export default function ModalUpdate({
       return setErr("name or ip is empty");
     }
     try {
-      console.log(host);
+      // console.log(host);
       await axios.put(`${IP}/api/updateHost/${hostId}`, host, {
         withCredentials: true,
       });
@@ -189,7 +189,7 @@ export default function ModalUpdate({
             endContent={
               <Chip
                 radius="sm"
-                color={status === "Active" ? "success" : "primary"}
+                color="secondary"
               >
                 {status}
               </Chip>

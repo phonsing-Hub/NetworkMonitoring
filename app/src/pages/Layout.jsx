@@ -2,18 +2,8 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { Outlet, Link, useLocation } from "react-router-dom";
 import { useTheme } from "../components/theme/ThemeProvider";
-import {
-  Avatar,
-  Button,
-  Layout,
-  Tag,
-  Menu,
-  theme,
-  Image,
-  Popover,
-  Switch,
-} from "antd";
-import { Button as Btn } from "@nextui-org/react";
+import { Button, Layout, Tag, Menu, theme, Image, Popover, Switch } from "antd";
+import { Button as Btn, Avatar } from "@nextui-org/react";
 import { MenuFoldOutlined, MenuUnfoldOutlined } from "@ant-design/icons";
 import { IoEarthSharp, IoSettingsOutline } from "react-icons/io5";
 import {
@@ -119,9 +109,13 @@ export default function LayoutRoot() {
 
           {!collapsed && (
             <div className="flex gap-3 items-center">
-              <div className="Img">
-                <Avatar src="/phonsing.jpg" className="m-[1px]" />
-              </div>
+              <Avatar
+                className="m-[1px]"
+                name="Polsing"
+                isBordered
+                color="primary"
+              ></Avatar>
+
               <Popover
                 placement="bottomLeft"
                 title={"Setting"}

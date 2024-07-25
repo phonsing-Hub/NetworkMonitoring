@@ -14,6 +14,8 @@ import NoPage from "./pages/NoPage";
 import Login from "./auth/Login";
 import Loading from "./auth/Loading";
 
+import Test from "./pages/Test";
+
 const IP = import.meta.env.VITE_DEFAULT_IP;
 
 export default function App() {
@@ -47,6 +49,7 @@ export default function App() {
                 <Route index element={<Home />} />
                 <Route path="devices" element={<Devices />} />
                 <Route path="service" element={<Service />} />
+                <Route path="test" element={<Test />} />
                 <Route path="*" element={<NoPage />} />
               </Route>
             </Routes>

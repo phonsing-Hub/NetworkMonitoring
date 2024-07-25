@@ -16,18 +16,19 @@ router.get("/ping-multiple", async (req, res) => {
           return {
             id: host.id,
             name: host.name,
-            host: result.host,
-            alive: result.alive,
+            ip: result.host,
+            status: result.alive ? "Up" : "Down",
             time: result.time,
-            output: result.output,
+            message: result.output,
+            points: host.points
           };
-        })
+        }) 
       );
 
       res.write(`data: ${JSON.stringify(results)}\n\n`);
     };
     await sendPingResults();
-    const interval = setInterval(sendPingResults, 20000);
+    const interval = setInterval(sendPingResults, 10000);
     req.on("close", () => {
       clearInterval(interval);
       res.end();
