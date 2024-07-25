@@ -8,7 +8,7 @@ git clone https://github.com/phonsing-Hub/app.git
 
 ```bash
 cd app
-bun install
+npm install
 ```
 หรือจะใช้ yarn or npm 
 
@@ -17,7 +17,7 @@ bun install
 เมื่อคุณติดตั้งโปรเจกต์เรียบร้อยแล้ว ให้รันแอปพลิเคชันในโหมด development ด้วยคำสั่ง:
 
 ```bash
-bun run dev
+npm run dev
 ```
 การรันนี้จะใช้ Vite หรือเครื่องมือที่กำหนดไว้ในไฟล์ `package.json` 
 
@@ -26,7 +26,7 @@ bun run dev
 เมื่อคุณพร้อมที่จะสร้าง Production Build ของแอปพลิเคชัน เพื่อนำไปใช้งานจริงหรือติดตั้งบนเซิร์ฟเวอร์ ใช้คำสั่ง:
 
 ```bash
-bun run build
+npm run build
 ```
 
 คำสั่งนี้จะใช้ Vite หรือเครื่องมือที่กำหนดไว้ใน `package.json` เพื่อสร้าง Production Build ซึ่งจะถูกเก็บไว้ในโฟลเดอร์ที่กำหนดไว้ (`dist`).
@@ -36,14 +36,14 @@ bun run build
 
 ```bash
 cd server
-bun install
+npm install
 ```
 ### 1. การรันแอปพลิเคชันในโหมด Development
 
 ในโหมด development, คุณสามารถใช้ nodemon เพื่อรันแอปพลิเคชันโดยอัตโนมัติเมื่อมีการเปลี่ยนแปลงในโค้ด:
 
 ```bash
-bun run dev
+npm run dev
 ```
 หรือจะใช้ yarn or npm
 
@@ -52,12 +52,12 @@ bun run dev
 เมื่อคุณพร้อมที่จะนำแอปพลิเคชันไปใช้งานจริงบนเซิร์ฟเวอร์ ให้สร้าง Production Build และรันด้วยคำสั่ง:
 
 ```bash
-bun start
+npm start
 ```
 
 ### 3. การจัดการ Dependencies และ DevDependencies
 
-- **Dependencies**: เป็นโมดูลที่จำเป็นสำหรับการทำงานของแอปพลิเคชัน ต้องติดตั้งและระบุใน `package.json` ด้วยคำสั่ง `bun install` หรือ `npm install`.
+- **Dependencies**: เป็นโมดูลที่จำเป็นสำหรับการทำงานของแอปพลิเคชัน ต้องติดตั้งและระบุใน `package.json` ด้วยคำสั่ง `npm install`.
 
 ### 4. การจัดการกับไฟล์และโครงสร้างโปรเจกต์
 
