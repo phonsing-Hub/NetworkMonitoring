@@ -2,7 +2,7 @@
 ### การติดตั้งโปรเจกต์
 
 ```bash
-git clone https://github.com/phonsing-Hub/app.git
+git clone https://github.com/phonsing-Hub/NetworkMonitoring.git
 ```
 ## app
 
