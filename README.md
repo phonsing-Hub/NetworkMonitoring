@@ -1,4 +1,6 @@
 <img src="https://github.com/phonsing-Hub/NetworkMonitoring/blob/main/Img1.png" alt="Img1" >
+<img src="https://github.com/phonsing-Hub/NetworkMonitoring/blob/main/Img2.png" alt="Img2" >
+
 ### การติดตั้งโปรเจกต์
 
 ```bash
